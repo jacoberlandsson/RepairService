@@ -1,4 +1,5 @@
-﻿using RepairService.Contexts;
+﻿using Microsoft.EntityFrameworkCore;
+using RepairService.Contexts;
 using RepairService.Models.Entities;
 
 namespace RepairService.Services;
