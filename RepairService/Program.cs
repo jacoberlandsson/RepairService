@@ -1,2 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using RepairService.Services;
+
+var statusService = new StatusService();
+
+await statusService.StartAsync();
