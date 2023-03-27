@@ -22,12 +22,24 @@ internal class RepairService
   
     }
 
-    public async Task<IEnumerable<RepairEntity>> GetAllAsync()
+    public async Task<IEnumerable<RepairEntity>> GetAllRepairsAsync()
     {
         return await _context.Repairs
             .Include(x => x.Tennant)
+            .Include(x => x.Description)
             .Include(x => x.Status)
             .Include(x => x.Comments)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<RepairEntity>> GetAllActiveRepairsAsync()
+    {
+        return await _context.Repairs
+            .Include(x => x.Tennant)
+            .Include(x => x.Description)
+            .Include(x => x.Status)
+            .Include(x => x.Comments)
+            .Where(x => x.StatusId != 3)
             .ToListAsync();
     }
 
@@ -35,6 +47,7 @@ internal class RepairService
     {
         var _repairEntity = await _context.Repairs
             .Include(x => x.Tennant)
+            .Include(x => x.Description)
             .Include(x => x.Status)
             .Include(x => x.Comments)
             .FirstOrDefaultAsync(predicate);
