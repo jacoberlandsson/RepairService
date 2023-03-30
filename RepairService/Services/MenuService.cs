@@ -18,6 +18,7 @@ internal class MenuService
         Console.WriteLine("1. Visa alla aktiva reparationer");
         Console.WriteLine("2. Visa alla reparationer");
         Console.WriteLine("3. Ny felanmälan");
+        Console.WriteLine("4. Sök efter en felanmälan/reparation");
 
         var menuOption = Console.ReadLine();
 
@@ -31,6 +32,9 @@ internal class MenuService
                 break;
             case "3":
                 await NewRepairAsync(); 
+                break;
+            case "4":
+                await GetSpecificRepairAsync();
                 break;
             default:
                 Console.Clear();
@@ -104,5 +108,52 @@ internal class MenuService
         
 
     }
-}   
+
+    private async Task GetSpecificRepairAsync()
+    {
+        Console.Clear();
+        
+
+            Console.Write("\nAnge namnet på hyresgästen som gjort felanmälan: ");
+            var name = Console.ReadLine();
+            
+
+            if (!string.IsNullOrEmpty(name))
+            {
+            var _entity = new RepairEntity();
+            
+            if (name != null)
+                {
+                Console.Clear();
+                Console.WriteLine("||||||||||| Reparationer som matchade din sökning |||||||||||");
+                foreach (var _repairs in await _repairService.GetSpecificRepairsAsync(name))
+                {
+                    Console.WriteLine($"Ärendenummer:  {_repairs.Id}");
+                    Console.WriteLine($"Hyresgäst:  {_repairs.Tennant.TennantName}");
+                    Console.WriteLine($"Datum för felanmälan:  {_repairs.Created}");
+                    Console.WriteLine($"Ärendets beskrivning:  {_repairs.Description}");
+                    Console.WriteLine($"Kommentarer: ");
+                    foreach (var comment in _repairs.Comments)
+                    {
+                        Console.WriteLine(comment.Comment);
+                    }
+                    Console.WriteLine($"Status:  {_repairs.Status.RepairStatus}");
+                    Console.WriteLine("");
+
+
+                }
+            }
+                else
+                {
+                    Console.WriteLine($"\nDet finns ingen felanmälan med namnet {name} i systemet.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("\nVar vänlig ange namnet på hyresgästen som gjort den felanmälan du söker.");
+            }
+
+        }
+    
+} 
 

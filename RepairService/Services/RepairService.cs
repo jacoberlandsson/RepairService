@@ -61,6 +61,17 @@ internal class RepairService
         return _repairEntity!;
     }
 
+    public async Task<IEnumerable<RepairEntity>> GetSpecificRepairsAsync(string name)
+    {
+        return await _context.Repairs
+            .Include(x => x.Tennant)
+            .Include(x => x.Status)
+            .Include(x => x.Comments)
+            .Where(x => x.Tennant.TennantName == name)
+            .ToListAsync();
+
+    }
+
     public async Task <RepairEntity> UpdateRepairStatusAsync(Expression<Func<RepairEntity, bool>> predicate)
     {
         var _repairEntity = await _context.Repairs.FirstOrDefaultAsync(predicate);
