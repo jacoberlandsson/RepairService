@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.IdentityModel.Tokens;
 using RepairService.Models.Entities;
 
 namespace RepairService.Services;
@@ -7,9 +8,11 @@ internal class MenuService
 {
    private readonly RepairService _repairService = new RepairService(); 
    private readonly TennantService _tennantService = new TennantService();
-
+   
     public async Task MainMenu()
     {
+    
+
         Console.Clear();
         Console.WriteLine("||||||||||| Välkommen till Reparationsservice, var god välj ett alternativ nedan |||||||||||");
         Console.WriteLine("1. Visa alla aktiva reparationer");
@@ -43,13 +46,17 @@ internal class MenuService
         foreach(var _repairs in await _repairService.GetAllActiveRepairsAsync())
         {
             Console.WriteLine($"Ärendenummer:  {_repairs.Id}");
-            Console.WriteLine($"Hyresgäst:  {_repairs.Tennant}");
+            Console.WriteLine($"Hyresgäst:  {_repairs.Tennant.TennantName}");
             Console.WriteLine($"Datum för felanmälan:  {_repairs.Created}");
             Console.WriteLine($"Ärendets beskrivning:  {_repairs.Description}");
-            Console.WriteLine($"Kommentarer:  {_repairs.Comments}");
+            Console.WriteLine($"Kommentarer: ");
+            foreach (var comment in _repairs.Comments)
+            {
+                Console.WriteLine(comment.Comment);
+            }
             Console.WriteLine($"Status:  {_repairs.Status.RepairStatus}");
             Console.WriteLine("");
-  
+
 
         }
     }
@@ -57,14 +64,18 @@ internal class MenuService
     private async Task AllRepairsAsync()
     {
         Console.Clear();
-        Console.WriteLine("||||||||||| Pågående reparationer |||||||||||");
+        Console.WriteLine("||||||||||| Alla reparationer |||||||||||");
         foreach (var _repairs in await _repairService.GetAllRepairsAsync())
         {
             Console.WriteLine($"Ärendenummer:  {_repairs.Id}");
-            Console.WriteLine($"Hyresgäst:  {_repairs.Tennant}");
+            Console.WriteLine($"Hyresgäst:  {_repairs.Tennant.TennantName}");
             Console.WriteLine($"Datum för felanmälan:  {_repairs.Created}");
             Console.WriteLine($"Ärendets beskrivning:  {_repairs.Description}");
-            Console.WriteLine($"Kommentarer:  {_repairs.Comments}");
+            Console.WriteLine($"Kommentarer: ");
+            foreach (var comment in _repairs.Comments)
+            {
+                Console.WriteLine(comment.Comment);
+            }
             Console.WriteLine($"Status:  {_repairs.Status.RepairStatus}");
             Console.WriteLine("");
 
@@ -75,9 +86,10 @@ internal class MenuService
     private async Task NewRepairAsync()
     {
         Console.Clear();
-        var _entity = new RepairEntity();
         var _tennantEntity = new TennantEntity();
+        var _entity = new RepairEntity();
 
+        Console.WriteLine("Ny felanmälan: ");
         Console.WriteLine("Hyresgästens namn: ");
         _tennantEntity.TennantName = Console.ReadLine() ?? "";
         Console.WriteLine("Hyresgästens email: ");
@@ -85,10 +97,11 @@ internal class MenuService
         Console.WriteLine("Ärendebeskrivning - beskriv vad som behöver åtgärdas: ");
         _entity.Description = Console.ReadLine() ?? "";
 
-        await _tennantService.CreateAsync( _tennantEntity );
+        _tennantEntity = await _tennantService.CreateAsync( _tennantEntity );
+        _entity.TennantId = _tennantEntity.Id;
         await _repairService.CreateAsync(_entity);
 
-        await ActiveRepairsAsync();
+        
 
     }
 }   

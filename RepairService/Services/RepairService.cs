@@ -11,36 +11,43 @@ internal class RepairService
     private readonly TennantService _tennantService = new TennantService();
     private readonly StatusService _statusService = new StatusService();
 
-    public async Task CreateAsync(RepairEntity repairEntity)
+    
+    public async Task<RepairEntity> CreateAsync(RepairEntity repairEntity)
     {
-        if (await _tennantService.GetAsync(tennantEntity => tennantEntity.Id == repairEntity.TennantId) != null &&
-            await _statusService.GetAsync(statusEntity => statusEntity.Id == repairEntity.StatusId) != null)
+        var _tennant = await _tennantService.GetAsync(tennantEntity => tennantEntity.Id == repairEntity.TennantId);
+        var _status = await _statusService.GetAsync(statusEntity => statusEntity.Id == repairEntity.StatusId);
+        if (_tennant != null && _status != null)
         {
-            _context.Add(repairEntity);
+            
+            _context.Repairs.Add(repairEntity);
             await _context.SaveChangesAsync();
+
         }
-  
+        return repairEntity!;
+        
     }
+    
+    
 
     public async Task<IEnumerable<RepairEntity>> GetAllRepairsAsync()
     {
         return await _context.Repairs
             .Include(x => x.Tennant)
-            .Include(x => x.Description)
             .Include(x => x.Status)
             .Include(x => x.Comments)
             .ToListAsync();
+        
     }
 
     public async Task<IEnumerable<RepairEntity>> GetAllActiveRepairsAsync()
     {
         return await _context.Repairs
             .Include(x => x.Tennant)
-            .Include(x => x.Description)
             .Include(x => x.Status)
             .Include(x => x.Comments)
             .Where(x => x.StatusId != 3)
             .ToListAsync();
+           
     }
 
     public async Task<RepairEntity> GetAsync(Expression<Func<RepairEntity, bool>> predicate)
