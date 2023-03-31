@@ -21,11 +21,6 @@ internal class TennantService
         return _tennantEntity;
     }
 
-    public async Task<IEnumerable<TennantEntity>> GetAllAsync()
-    {
-        return await _context.Tennants.ToListAsync();
-    }
-
     public async Task<TennantEntity> GetAsync(Expression<Func<TennantEntity, bool>> predicate)
     {
         var _tennantEntity = await _context.Tennants.FirstOrDefaultAsync(predicate);

@@ -25,11 +25,6 @@ internal class StatusService
         }
     }
 
-    public async Task<IEnumerable<StatusEntity>> GetAllAsync()
-    {
-        return await _context.Statuses.ToListAsync();
-    }
-
     public async Task<StatusEntity> GetAsync(Expression<Func<StatusEntity, bool>> predicate)
     {
         var _statusEntity = await _context.Statuses.FirstOrDefaultAsync(predicate);
