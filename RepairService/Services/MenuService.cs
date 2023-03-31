@@ -6,12 +6,12 @@ namespace RepairService.Services;
 
 internal class MenuService
 {
-   private readonly RepairService _repairService = new RepairService(); 
-   private readonly TennantService _tennantService = new TennantService();
-   
+    private readonly RepairService _repairService = new RepairService();
+    private readonly TennantService _tennantService = new TennantService();
+
     public async Task MainMenu()
     {
-    
+
 
         Console.Clear();
         Console.WriteLine("||||||||||| Välkommen till Reparationsservice, var god välj ett alternativ nedan |||||||||||");
@@ -19,10 +19,11 @@ internal class MenuService
         Console.WriteLine("2. Visa alla reparationer");
         Console.WriteLine("3. Ny felanmälan");
         Console.WriteLine("4. Sök efter en felanmälan/reparation");
+        Console.WriteLine("5. Ändra status på en reparation");
 
         var menuOption = Console.ReadLine();
 
-       switch(menuOption)
+        switch (menuOption)
         {
             case "1":
                 await ActiveRepairsAsync();
@@ -31,10 +32,13 @@ internal class MenuService
                 await AllRepairsAsync();
                 break;
             case "3":
-                await NewRepairAsync(); 
+                await NewRepairAsync();
                 break;
             case "4":
                 await GetSpecificRepairAsync();
+                break;
+            case "5":
+                await UpdateStatusAsync();
                 break;
             default:
                 Console.Clear();
@@ -47,7 +51,7 @@ internal class MenuService
     {
         Console.Clear();
         Console.WriteLine("||||||||||| Pågående reparationer |||||||||||");
-        foreach(var _repairs in await _repairService.GetAllActiveRepairsAsync())
+        foreach (var _repairs in await _repairService.GetAllActiveRepairsAsync())
         {
             Console.WriteLine($"Ärendenummer:  {_repairs.Id}");
             Console.WriteLine($"Hyresgäst:  {_repairs.Tennant.TennantName}");
@@ -101,29 +105,29 @@ internal class MenuService
         Console.WriteLine("Ärendebeskrivning - beskriv vad som behöver åtgärdas: ");
         _entity.Description = Console.ReadLine() ?? "";
 
-        _tennantEntity = await _tennantService.CreateAsync( _tennantEntity );
+        _tennantEntity = await _tennantService.CreateAsync(_tennantEntity);
         _entity.TennantId = _tennantEntity.Id;
         await _repairService.CreateAsync(_entity);
 
-        
+
 
     }
 
     private async Task GetSpecificRepairAsync()
     {
         Console.Clear();
-        
 
-            Console.Write("\nAnge namnet på hyresgästen som gjort felanmälan: ");
-            var name = Console.ReadLine();
-            
 
-            if (!string.IsNullOrEmpty(name))
-            {
+        Console.Write("\nAnge namnet på hyresgästen som gjort felanmälan: ");
+        var name = Console.ReadLine();
+
+
+        if (!string.IsNullOrEmpty(name))
+        {
             var _entity = new RepairEntity();
-            
+
             if (name != null)
-                {
+            {
                 Console.Clear();
                 Console.WriteLine("||||||||||| Reparationer som matchade din sökning |||||||||||");
                 foreach (var _repairs in await _repairService.GetSpecificRepairsAsync(name))
@@ -143,17 +147,32 @@ internal class MenuService
 
                 }
             }
-                else
-                {
-                    Console.WriteLine($"\nDet finns ingen felanmälan med namnet {name} i systemet.");
-                }
-            }
             else
             {
-                Console.WriteLine("\nVar vänlig ange namnet på hyresgästen som gjort den felanmälan du söker.");
+                Console.WriteLine($"\nDet finns ingen felanmälan med namnet {name} i systemet.");
             }
+        }
+        else
+        {
+            Console.WriteLine("\nVar vänlig ange namnet på hyresgästen som gjort den felanmälan du söker.");
+        }
+
+    }
+    private async Task UpdateStatusAsync()
+    {
+        Console.Clear();
+        Console.WriteLine("||||| Ändra reparationsstatus |||||");
+        Console.Write("\nAnge namnet på hyresgästen vars status du vill ändra: ");
+        var input = Console.ReadLine();
+        
+        await _repairService.UpdateRepairStatusAsync(x => x.Tennant.TennantName == input);
+
+        Console.WriteLine("Ärendets status har nu uppdaterats");
+
 
         }
-    
-} 
+
+    }
+
+
 
